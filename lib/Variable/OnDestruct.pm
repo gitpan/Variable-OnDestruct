@@ -1,15 +1,16 @@
 package Variable::OnDestruct;
 
 use strict;
-use warnings;
-use base qw/DynaLoader Exporter/;
+use warnings FATAL => 'all';
+use Exporter 5.57 'import';
+use XSLoader;
 
-##no critic ProhibitAutomaticExportation
+##no critic (ProhibitAutomaticExportation)
 our @EXPORT = qw/on_destruct/;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
-bootstrap Variable::OnDestruct $VERSION;
+XSLoader::load('Variable::OnDestruct', $VERSION);
 
 1;    # End of Variable::OnDestruct
 
@@ -21,7 +22,7 @@ Variable::OnDestruct - Call a subroutine on destruction of a variable.
 
 =head1 VERSION
 
-Version 0.01
+Version 0.03
 
 =cut
 
@@ -32,10 +33,12 @@ Version 0.01
 	on_destruct $var, sub { do_something() };
 	on_destruct @array, sub { do_something_else() };
 	on_destruct %array, sub { hashes_work_too() };
+	on_destruct &$sub, sub { so_do_closures($but_not_normal_subs) };
+	on_destruct *$glob, sub { and_even_globs($similar_caveats_as_subs_though) };
 
 =head1 DESCRIPTION
 
-This module allows you to let a function be called when a variable gets destroyed. The destructor will work not only on scalars but also on arrays and hashes.
+This module allows you to let a function be called when a variable gets destroyed. The destructor will work not only on scalars but also on arrays, hashes, subs and globs. For the latter two you should realize that most of them aren't scoped like normal variables. Subs for example will only work like you expect them to when they are closures.
 
 =head1 FUNCTIONS
 
@@ -85,16 +88,11 @@ L<http://search.cpan.org/dist/Variable-OnDestruct>
 
 =back
 
-
-=head1 ACKNOWLEDGEMENTS
-
-
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2009 Leon Timmermans, all rights reserved.
+Copyright 2009,2010 Leon Timmermans, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
-
 
 =cut
